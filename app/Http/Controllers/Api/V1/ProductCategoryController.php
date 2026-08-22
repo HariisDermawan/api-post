@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Api\V1;
 use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductCategoryRequest;
+use App\Http\Requests\StoreProductCategoryRequest;
+use App\Http\Requests\UpdateProductCategoryRequest;
 use App\Http\Resources\PaginatedResource;
 use App\Http\Resources\ProductCategoryResource;
 use App\Models\ProductCategory;
-use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class ProductCategoryController extends Controller
 {
@@ -29,9 +32,22 @@ class ProductCategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreProductCategoryRequest $request)
     {
-        //
+        $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')
+                ->store('product_image', 'public');
+        }
+
+        $category = ProductCategory::create($data);
+
+        return ApiResponse::success(
+            new ProductCategoryResource($category),
+            'Product category created successfully',
+            Response::HTTP_CREATED
+        );
     }
 
     /**
@@ -39,15 +55,36 @@ class ProductCategoryController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $category = ProductCategory::findOrFail($id);
+
+        return ApiResponse::success(
+            new ProductCategoryResource($category),
+            'Product category detail'
+        );
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+    public function update( UpdateProductCategoryRequest $request, string $id) {
+        $category = ProductCategory::findOrFail($id);
+        $data = $request->only([
+            'name',
+            'description',
+        ]);
+
+        if ($request->hasFile('image')) {
+            if ($category->image) {
+                Storage::disk('public')->delete($category->image);
+            }
+            $data['image'] = $request->file('image')->store('product_image', 'public');
+        }
+
+        $category->update($data);
+        return ApiResponse::success(
+            new ProductCategoryResource($category->fresh()),
+            'Product category updated successfully'
+        );
     }
 
     /**

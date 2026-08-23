@@ -23,10 +23,24 @@ class ProductCategoryController extends Controller
         $categories = ProductCategory::search($request->search)
             ->latest()
             ->paginate($request->limit ?? 10);
+
         return ApiResponse::success(
             new PaginatedResource($categories, ProductCategoryResource::class),
             'Product Categories list'
         );
+    }
+
+    public function options(ProductCategoryRequest $request)
+    {
+        $categories = ProductCategory::select('id', 'name')
+            ->search($request->search)
+            ->orderBy('name')->get();
+
+        return ApiResponse::success(
+            ProductCategoryResource::collection($categories),
+            'Product Categories list'
+        );
+
     }
 
     /**
@@ -66,8 +80,17 @@ class ProductCategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update( UpdateProductCategoryRequest $request, string $id) {
-        $category = ProductCategory::findOrFail($id);
+    public function update(UpdateProductCategoryRequest $request, string $id)
+    {
+        $category = ProductCategory::find($id);
+
+        if (! $category) {
+            return ApiResponse::error(
+                'Product Category Not Found',
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
         $data = $request->only([
             'name',
             'description',
@@ -81,6 +104,7 @@ class ProductCategoryController extends Controller
         }
 
         $category->update($data);
+
         return ApiResponse::success(
             new ProductCategoryResource($category->fresh()),
             'Product category updated successfully'
@@ -92,6 +116,24 @@ class ProductCategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $category = ProductCategory::find($id);
+
+        if (! $category) {
+            return ApiResponse::error(
+                'Product Category not found',
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        if ($category->image) {
+            Storage::disk('public')->delete($category->image);
+        }
+
+        $category->delete();
+
+        return ApiResponse::success(
+            null,
+            'Product category deleted successfully'
+        );
     }
 }

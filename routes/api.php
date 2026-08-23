@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CustomerController;
 use App\Http\Controllers\Api\V1\ProductCategoryController;
 use App\Http\Controllers\Api\V1\ProductController;
+use App\Http\Controllers\Api\V1\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -17,5 +18,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('product-categories', ProductCategoryController::class);
         Route::apiResource('products', ProductController::class);
         Route::apiResource('customers', CustomerController::class);
+        Route::apiResource('transactions', TransactionController::class)
+            ->only(['index', 'store', 'show']);
     });
 });

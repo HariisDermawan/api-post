@@ -31,6 +31,18 @@ class ProductController extends Controller
         );
     }
 
+    public function options(ProductRequest $request)
+    {
+        $products = Product::select('id', 'name')
+            ->search($request->search)
+            ->orderBy('name')->get();
+
+        return ApiResponse::success(
+            ProductResource::collection($products),
+            'Product  list'
+        );
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -55,14 +67,21 @@ class ProductController extends Controller
      * Display the specified resource.
      */
     public function show(string $id): JsonResponse
-    {
-        $product = Product::findOrFail($id);
+{
+    $product = Product::find($id);
 
-        return ApiResponse::success(
-            new ProductResource($product),
-            'Product detail'
+    if (!$product) {
+        return ApiResponse::error(
+            'Product not found',
+            Response::HTTP_NOT_FOUND
         );
     }
+
+    return ApiResponse::success(
+        new ProductResource($product),
+        'Product detail'
+    );
+}
 
     /**
      * Update the specified resource in storage.

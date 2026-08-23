@@ -50,6 +50,7 @@ class ProductCategoryController extends Controller
     {
         $data = $request->validated();
 
+
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')
                 ->store('product_image', 'public');
@@ -80,36 +81,38 @@ class ProductCategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateProductCategoryRequest $request, string $id)
-    {
-        $category = ProductCategory::find($id);
+   public function update(UpdateProductCategoryRequest $request, string $id)
+{
+    $category = ProductCategory::find($id);
 
-        if (! $category) {
-            return ApiResponse::error(
-                'Product Category Not Found',
-                Response::HTTP_NOT_FOUND
-            );
-        }
-
-        $data = $request->only([
-            'name',
-            'description',
-        ]);
-
-        if ($request->hasFile('image')) {
-            if ($category->image) {
-                Storage::disk('public')->delete($category->image);
-            }
-            $data['image'] = $request->file('image')->store('product_image', 'public');
-        }
-
-        $category->update($data);
-
-        return ApiResponse::success(
-            new ProductCategoryResource($category->fresh()),
-            'Product category updated successfully'
+    if (! $category) {
+        return ApiResponse::error(
+            'Product Category Not Found',
+            Response::HTTP_NOT_FOUND
         );
     }
+
+    $data = $request->validated();
+
+    if ($request->hasFile('image')) {
+
+        // Hapus gambar lama
+        if ($category->image) {
+            Storage::disk('public')->delete($category->image);
+        }
+
+        // Simpan gambar baru
+        $data['image'] = $request->file('image')
+            ->store('product_image', 'public');
+    }
+
+    $category->update($data);
+
+    return ApiResponse::success(
+        new ProductCategoryResource($category->fresh()),
+        'Product category updated successfully'
+    );
+}
 
     /**
      * Remove the specified resource from storage.

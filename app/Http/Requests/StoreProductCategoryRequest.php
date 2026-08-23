@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreProductCategoryRequest extends FormRequest
@@ -23,9 +22,9 @@ class StoreProductCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => 'required|image|max:2048',
-            'name' => 'required|string|max:255',
-            'description' => 'required|string'
-        ];
+        'name' => ['required', 'string', 'max:255'],
+        'description' => ['required', 'string'],
+        'image' => ['nullable', 'image', 'max:2048'],
+    ];
     }
 }

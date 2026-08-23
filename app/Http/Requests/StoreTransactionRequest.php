@@ -23,7 +23,6 @@ class StoreTransactionRequest extends FormRequest
     {
         return [
             'customer_id' => ['required', 'integer', 'exists:customers,id'],
-            'tax' => ['nullable', 'numeric', 'min:0'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'integer', 'exists:products,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],

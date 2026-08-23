@@ -26,7 +26,6 @@ test('an authenticated user can create a transaction and stock is decremented', 
 
     $response = $this->post('/api/v1/transactions', [
         'customer_id' => $customer->id,
-        'tax' => '10000.00',
         'items' => [
             ['product_id' => $product->id, 'quantity' => 2],
         ],
@@ -36,8 +35,8 @@ test('an authenticated user can create a transaction and stock is decremented', 
         ->assertJsonPath('success', true)
         ->assertJsonPath('data.customer_id', $customer->id)
         ->assertJsonPath('data.subtotal', '200000.00')
-        ->assertJsonPath('data.tax', '10000.00')
-        ->assertJsonPath('data.total', '210000.00')
+        ->assertJsonPath('data.tax', '22000.00')
+        ->assertJsonPath('data.total', '222000.00')
         ->assertJsonPath('data.items.0.product_id', $product->id)
         ->assertJsonPath('data.items.0.price', '100000.00')
         ->assertJsonPath('data.items.0.quantity', 2)
@@ -46,7 +45,8 @@ test('an authenticated user can create a transaction and stock is decremented', 
     $this->assertDatabaseHas('transactions', [
         'customer_id' => $customer->id,
         'subtotal' => '200000.00',
-        'total' => '210000.00',
+        'tax' => '22000.00',
+        'total' => '222000.00',
     ]);
     $this->assertDatabaseHas('transaction_items', [
         'product_id' => $product->id,

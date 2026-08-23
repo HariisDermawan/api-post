@@ -19,6 +19,11 @@ use Throwable;
 class TransactionController extends Controller
 {
     /**
+     * PPN 11%.
+     */
+    private const TAX_RATE = '0.11';
+
+    /**
      * Display a listing of the resource.
      */
     public function index(TransactionRequest $request): JsonResponse
@@ -77,7 +82,7 @@ class TransactionController extends Controller
                     ];
                 }
 
-                $tax = (string) ($data['tax'] ?? '0');
+                $tax = bcmul($subtotal, self::TAX_RATE, 2);
                 $total = bcadd($subtotal, $tax, 2);
 
                 $transaction = Transaction::create([

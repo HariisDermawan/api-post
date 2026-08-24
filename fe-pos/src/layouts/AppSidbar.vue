@@ -1,8 +1,12 @@
 <script setup>
+import { useAuthStore } from '@/stores/auth.store';
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
+const authStore = useAuthStore()
+const { user } = authStore
+const logoutDialog = ref(false)
 const menuItems = ref([
     {
         label: "General",
@@ -57,15 +61,15 @@ const menuItems = ref([
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-semibold text-surface-900 truncate">
-                        User Name
+                        {{ user?.name }}
                     </p>
                     <p class="text-sm text-surface-900 truncate">
-                        pos@gmail.com
+                        {{ user?.email }}
                     </p>
                 </div>
                 <div class="group flex items-center gap-3">
                     <!-- Profile -->
-                    <button type="button"
+                    <button type="submit" 
                         class="ml-auto mt-5 flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 transition-all duration-200 group-hover:bg-red-500 group-hover:text-white"
                         aria-label="Logout">
                         <i class="pi pi-sign-out text-lg"></i>

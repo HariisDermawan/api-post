@@ -1,13 +1,31 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import InputText from 'primevue/inputtext';
+import router from '@/router';
+import { useAuthStore } from '@/stores/auth.store';
 
-
+const auth = useAuthStore()
+const error = ref < string | null > (null)
 const showPassword = ref(false)
 const form = ref({
     'email': '',
     'password': '',
 })
+
+async function login() {
+    error.value = null;
+    if (!form.value.email || !form.value.password) {
+        error.value = 'Email and Password are required'
+        return
+    }
+
+    try {
+        await auth.login(form.value.email, form.value.password)
+        router.push({ name: 'dashboard' })
+    } catch (e) {
+        error.value = 'Invalid email or password'
+    }
+}
 </script>
 
 <template>
@@ -15,7 +33,8 @@ const form = ref({
         <div class="w-full max-w-[380px] rounded-2xl border border-surface-200  bg-white px-7 py-8 shadow-sm">
             <!-- Logo -->
             <div class="mb-7 text-center">
-                <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-500 text-white shadow-md">
+                <div
+                    class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-500 text-white shadow-md">
                     <i class="pi pi-bolt text-xl"></i>
                 </div>
                 <h1 class="text-2xl font-bold text-surface-900">
@@ -26,11 +45,18 @@ const form = ref({
                     Sign in to continue to your account
                 </p>
             </div>
-            <form class="flex flex-col gap-5">
+            <form @submit.prevent="login" class="flex flex-col gap-5">
+                <!-- Error Message -->
+                <div v-if="error" class="mb-4 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                    <i class="pi pi-exclamation-circle text-red-500"></i>
+                    <span>
+                        {{ error }}
+                    </span>
+                </div>
                 <!-- Email -->
                 <div>
                     <label for="email" class="mb-2 block text-sm font-medium text-surface-700">
-                        Email Address
+                        Email Address <span class="text-red-600">*</span>
                     </label>
 
                     <div class="relative">
@@ -48,7 +74,7 @@ const form = ref({
                 <!-- Password -->
                 <div>
                     <label for="password" class="mb-2 block text-sm font-medium text-surface-700">
-                        Password
+                        Password <span class="text-red-600">*</span>
                     </label>
 
                     <div class="relative">
@@ -71,8 +97,8 @@ const form = ref({
                                    hover:bg-surface-100
                                    hover:text-surface-700" @click="showPassword = !showPassword">
                             <i :class="showPassword
-                                    ? 'pi pi-eye-slash'
-                                    : 'pi pi-eye'
+                                ? 'pi pi-eye-slash'
+                                : 'pi pi-eye'
                                 " class="text-sm"></i>
                         </button>
 
@@ -109,7 +135,7 @@ const form = ref({
                 </div>
 
                 <!-- Login Button -->
-                <button type="submit" class="flex h-11 w-full items-center justify-center
+                <button type="submit" label="Login" fluid class="flex h-11 w-full items-center justify-center
                            gap-2 rounded-xl bg-primary-500 px-4
                            text-sm font-semibold text-white
                            transition-all duration-200

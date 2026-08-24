@@ -1,5 +1,4 @@
-import { RouterView } from 'vue-router';
-<script setup>
+<script setup lang="ts">
 import { RouterView } from 'vue-router';
 import AppSidbar from './AppSidbar.vue';
 </script>

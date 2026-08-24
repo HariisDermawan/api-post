@@ -54,7 +54,9 @@ app.use(router)
 app.use(PrimeVue, {
     theme: {
         preset: FlashPreset,
+        options: {
+            darkModeSelector: '.app-dark'
+        }
     },
 })
-
 app.mount('#app')
